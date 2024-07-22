@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import styles from '@/styles/index.css?inline'
 import App from './App'
 
-const isProduction: boolean = process.env.NODE_ENV === 'production'
+const isProduction: boolean = true
 const ROOT_ID = 'RENAME_ME_IF_YOU_WANT'
 
 const injectReact = (rootId: string): void => {

@@ -40,7 +40,12 @@ interface Manifest {
             }
             description: string
         }
-    }
+    },
+    externally_connectable: {
+        matches: string[],
+        ids: string[],
+        accepts_tls_channel_id: boolean
+    },
 }
 
 const createBaseManifest = async (): Promise<Manifest> => {
@@ -68,7 +73,7 @@ const createBaseManifest = async (): Promise<Manifest> => {
                 48: './assets/icon-48.png',
                 128: './assets/icon-128.png'
             },
-            permissions: [],
+            permissions: ['storage', 'activeTab'],
             content_scripts: [
                 {
                     matches: ['<all_urls>'],
@@ -82,6 +87,11 @@ const createBaseManifest = async (): Promise<Manifest> => {
                     },
                     description: 'Refresh Extension' // https://developer.chrome.com/docs/extensions/reference/commands/
                 }
+            },
+            externally_connectable: {
+                ids: ["aohajaelhipbamnilfnehkcpecpeacmd"],
+                accepts_tls_channel_id: false,
+                matches: ['*://localhost/*']
             }
         }
     } catch (error) {

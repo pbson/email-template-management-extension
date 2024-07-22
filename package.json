@@ -1,7 +1,7 @@
 {
-    "name": "web-extension-boilerplate-23",
-    "longName": "Web Extension Boilerplate by withSeismic.com",
-    "description": "Web Extension Boilerplate by withSeismic.com",
+    "name": "teacher-mail-assist",
+    "longName": "TeacherMailAssist",
+    "description": "TeacherMailAssist",
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
@@ -15,7 +15,7 @@
         "build:js": "vite build --config vite.config.content.ts",
         "preview": "vite preview"
     },
-    "author": "Doug Silkstone <doug@withseismic.com>",
+    "author": "pbson",
     "license": "ISC",
     "devDependencies": {
         "@types/chrome": "^0.0.240",
@@ -42,5 +42,12 @@
         "webext-bridge": "^6.0.1",
         "webextension-polyfill": "^0.10.0",
         "webextension-polyfill-ts": "^0.26.0"
+    },
+    "dependencies": {
+        "@tailwindcss/typography": "^0.5.13",
+        "axios": "^1.7.2",
+        "lodash.debounce": "^4.0.8",
+        "lucide-react": "^0.412.0",
+        "react-hot-toast": "^2.4.1"
     }
 }
