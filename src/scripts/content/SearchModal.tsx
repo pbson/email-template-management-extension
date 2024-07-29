@@ -64,6 +64,13 @@ const SearchModal: React.FC<SearchModalProps> = ({ setShowModal }) => {
 
   useEffect(() => {
     const fetchInitialData = async () => {
+      //check if user is logged in
+      chrome.storage.local.get(['jwt'], async (result) => {
+        if (!result.jwt) {
+          toast.error('Please login to view cases');
+          return;
+        }
+      });
       try {
         const [recentSearchesResponse, defaultCasesResponse, tagsResponse] = await Promise.all([
           caseApi.getRecentSearches(),
