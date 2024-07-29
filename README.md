@@ -16,8 +16,11 @@ This repository contains a Chrome extension designed to help teachers manage ema
     ```bash
     npm install
 
+3. Create .env file:
+    ```bash
+    cp example.env .env
 
-3. Build the project:
+4. Build the project:
     ```bash
     npm run build
 
@@ -32,5 +35,5 @@ This repository contains a Chrome extension designed to help teachers manage ema
 
 Once the extension is loaded in Chrome, you can:
 
-1. Click on the extension icon in the Chrome toolbar to open the main interface.
-2. Use the provided UI to manage your email templates and reminders.
+1. Click on the extension icon in the Chrome toolbar to open the schedule calendar.
+2. Use the Add new case button on Outlook to manage your email templates.
