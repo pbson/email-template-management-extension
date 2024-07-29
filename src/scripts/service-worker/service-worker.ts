@@ -18,13 +18,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log('Message received:', message)
     const { command } = message
     switch (command) {
-        case 'hello-world':
-            console.log('Hello World, from the Background Service Worker')
-            sendResponse({ success: true, message: 'Hello World' })
-            break
         case 'SET_JWT':
-            chrome.storage.local.set({ jwt: message.token }, () => {
-                sendResponse({ status: 'Token saved' })
+            chrome.tabs.query({ active: true }, function () {
+                chrome.storage.local.set({ jwt: message.token }, () => {
+                    sendResponse({ status: 'Token saved' })
+                })
             })
             break
         default:
@@ -40,14 +38,5 @@ chrome.commands.onCommand.addListener(command => {
         chrome.runtime.reload()
     }
 })
-
-// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-//     if (message.type === 'SET_JWT') {
-//         chrome.storage.local.set({ jwt: message.token }, () => {
-//             sendResponse({ status: 'Token saved' })
-//         })
-//         return true // Keeps the message channel open for sendResponse
-//     }
-// })
 
 export {}

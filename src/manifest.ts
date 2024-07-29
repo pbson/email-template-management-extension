@@ -91,7 +91,7 @@ const createBaseManifest = async (): Promise<Manifest> => {
             externally_connectable: {
                 ids: ["aohajaelhipbamnilfnehkcpecpeacmd"],
                 accepts_tls_channel_id: false,
-                matches: ['*://localhost/*']
+                matches: ['*://localhost/*', '*://main--email-template-management.netlify.app/*']
             }
         }
     } catch (error) {

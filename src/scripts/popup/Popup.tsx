@@ -264,7 +264,7 @@ const Popup = () => {
                     </p>
                 </div>
                 <button
-                    onClick={() => chrome.tabs.create({ url: 'https://localhost:5173/login' })}
+                    onClick={() => chrome.tabs.create({ url: import.meta.env.VITE_LOGIN_URL })}
                     className="bg-[#006C50] text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-[#005a43] transition duration-300 flex items-center justify-center"
                 >
                     Sign In
