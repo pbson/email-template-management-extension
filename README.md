@@ -20,7 +20,7 @@ This repository contains a Chrome extension designed to help teachers manage ema
     ```bash
     cp example.env .env
 
-4. Build the project:
+4. Build the project ( The build is in Watch mode so it will stay in the background, as long as the dist folder is created, you\'re good to go )
     ```bash
     npm run build
 
