@@ -13,7 +13,6 @@ const App = () => {
         const token = localStorage.getItem('jwt');
         if (token) {
             chrome.runtime.sendMessage({ command: 'SET_JWT', token: token }, response => {
-                console.log('Response from background:', response);
             });
         }
 

@@ -1,8 +1,5 @@
-console.log('Background Service Worker Loaded')
 
 chrome.runtime.onInstalled.addListener(async () => {
-    console.log('Extension installed')
-    console.log(chrome.runtime);
 })
 
 chrome.action.setBadgeText({ text: 'ON' })
@@ -15,7 +12,6 @@ chrome.action.onClicked.addListener(() => {
 })
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log('Message received:', message)
     const { command } = message
     switch (command) {
         case 'SET_JWT':
@@ -32,7 +28,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 }),
 
 chrome.commands.onCommand.addListener(command => {
-    console.log(`Command: ${command}`)
 
     if (command === 'refresh_extension') {
         chrome.runtime.reload()
