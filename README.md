@@ -24,6 +24,24 @@ This repository contains a Chrome extension designed to help teachers manage ema
     ```bash
     npm run build
 
+#### Using Docker
+
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/pbson/email-template-management-extension.git
+    cd email-template-management-extension
+    ```
+
+2. Build the Docker image:
+    ```bash
+    docker build -t teacher-mail-assist .
+    ```
+
+3. Run the Docker container:
+    ```bash
+    docker run --rm -it -v $(pwd)/dist:/app/dist teacher-mail-assist
+    ```
+
 ### Load the Extension in Chrome
 
 1. Open Chrome and navigate to `chrome://extensions/`.
