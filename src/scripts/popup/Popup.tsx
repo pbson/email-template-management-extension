@@ -232,9 +232,9 @@ const Popup = () => {
         return (
             <div className="isolation w-80 h-96 bg-white text-gray-800 p-6 flex flex-col justify-between shadow-lg">
                 <div>
-                    <h1 className="text-2xl font-bold mb-4 text-[#006C50]">Sussex Tutor Assist</h1>
+                    <h1 className="text-2xl font-bold mb-4 text-[#006C50]">Academic Schedule & Email Assistant</h1>
                     <p className="mb-6">
-                        Welcome, University of Sussex tutor. Please sign in to access your schedule
+                        Welcome, tutor. Please sign in to access your schedule
                         and email assistance tools.
                     </p>
                 </div>
