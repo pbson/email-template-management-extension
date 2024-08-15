@@ -8,7 +8,14 @@ import {
     formatISO,
     parseISO,
     eachDayOfInterval,
-    format
+    format,
+    addMonths,
+    addYears,
+    addWeeks,
+    isSameDay,
+    getDay,
+    getDate,
+    getMonth
 } from 'date-fns'
 import scheduleApi from '../features/schedule/schedule.api'
 import toast from 'react-hot-toast'
@@ -45,7 +52,6 @@ const Popup = () => {
     const fetchUserSchedule = async () => {
         try {
             const response = await scheduleApi.getList()
-            console.log(1111, response)
             const processedSchedule = processScheduleForRange(response.data.data)
             setUserSchedule(processedSchedule)
         } catch (error) {
@@ -59,6 +65,7 @@ const Popup = () => {
         const processed = []
 
         schedules.forEach(schedule => {
+            console.log('schedule', schedule)
             const { recurrence, start_timestamp, end_timestamp } = schedule
             const scheduleStartDate = parseISO(start_timestamp)
             const scheduleEndDate = end_timestamp ? parseISO(end_timestamp) : null
@@ -73,64 +80,53 @@ const Popup = () => {
                 } = recurrence
                 switch (frequency) {
                     case 'Daily':
-                        eachDayOfInterval({ start, end: end || endOfDay(new Date()) }).forEach(
-                            date => {
-                                if (
-                                    isWithinInterval(date, {
-                                        start: scheduleStartDate,
-                                        end: scheduleEndDate || end
-                                    })
-                                ) {
-                                    processed.push(createEvent(schedule, date))
-                                }
+                        let currentDailyDate = scheduleStartDate
+                        while (currentDailyDate <= end) {
+                            if (
+                                currentDailyDate >= start &&
+                                (!scheduleEndDate || currentDailyDate <= scheduleEndDate)
+                            ) {
+                                processed.push(createEvent(schedule, currentDailyDate))
                             }
-                        )
+                            currentDailyDate = addDays(currentDailyDate, interval)
+                        }
                         break
                     case 'Weekly':
-                        eachDayOfInterval({ start, end: end || endOfDay(new Date()) }).forEach(
-                            date => {
-                                if (
-                                    isWithinInterval(date, {
-                                        start: scheduleStartDate,
-                                        end: scheduleEndDate || end
-                                    }) &&
-                                    date.getDay() === scheduleStartDate.getDay()
-                                ) {
-                                    processed.push(createEvent(schedule, date))
-                                }
+                        let currentWeeklyDate = scheduleStartDate
+                        while (currentWeeklyDate <= end) {
+                            if (
+                                currentWeeklyDate >= start &&
+                                (!scheduleEndDate || currentWeeklyDate <= scheduleEndDate) &&
+                                getDay(currentWeeklyDate) === getDay(scheduleStartDate)
+                            ) {
+                                processed.push(createEvent(schedule, currentWeeklyDate))
                             }
-                        )
+                            currentWeeklyDate = addWeeks(currentWeeklyDate, interval)
+                        }
                         break
                     case 'Monthly':
-                        eachDayOfInterval({ start, end: end || endOfDay(new Date()) }).forEach(
-                            date => {
-                                if (
-                                    isWithinInterval(date, {
-                                        start: scheduleStartDate,
-                                        end: scheduleEndDate || end
-                                    }) &&
-                                    date.getDate() === scheduleStartDate.getDate()
-                                ) {
-                                    processed.push(createEvent(schedule, date))
-                                }
+                        let currentMonthlyDate = scheduleStartDate
+                        while (currentMonthlyDate <= end) {
+                            if (
+                                currentMonthlyDate >= start &&
+                                (!scheduleEndDate || currentMonthlyDate <= scheduleEndDate)
+                            ) {
+                                processed.push(createEvent(schedule, currentMonthlyDate))
                             }
-                        )
+                            currentMonthlyDate = addMonths(currentMonthlyDate, interval)
+                        }
                         break
                     case 'Yearly':
-                        eachDayOfInterval({ start, end: end || endOfDay(new Date()) }).forEach(
-                            date => {
-                                if (
-                                    isWithinInterval(date, {
-                                        start: scheduleStartDate,
-                                        end: scheduleEndDate || end
-                                    }) &&
-                                    date.getDate() === scheduleStartDate.getDate() &&
-                                    date.getMonth() === scheduleStartDate.getMonth()
-                                ) {
-                                    processed.push(createEvent(schedule, date))
-                                }
+                        let currentYearlyDate = scheduleStartDate
+                        while (currentYearlyDate <= end) {
+                            if (
+                                currentYearlyDate >= start &&
+                                (!scheduleEndDate || currentYearlyDate <= scheduleEndDate)
+                            ) {
+                                processed.push(createEvent(schedule, currentYearlyDate))
                             }
-                        )
+                            currentYearlyDate = addYears(currentYearlyDate, interval)
+                        }
                         break
                     case 'Custom':
                         processCustomRecurrence(
@@ -174,50 +170,29 @@ const Popup = () => {
     ) => {
         const { days_of_week, days_of_month, months_of_year } = schedule.recurrence
 
-        if (days_of_week) {
-            const daysOfWeekArray = days_of_week.split(',')
-            eachDayOfInterval({ start: currentRangeStart, end: currentRangeEnd }).forEach(date => {
-                if (
-                    daysOfWeekArray.includes(format(date, 'EEEE')) &&
-                    isWithinInterval(date, {
-                        start: scheduleStartDate,
-                        end: scheduleEndDate || currentRangeEnd
-                    })
-                ) {
-                    processed.push(createEvent(schedule, date))
-                }
-            })
-        }
+        const daysOfWeekArray = days_of_week ? days_of_week.split(',') : null
+        const daysOfMonthArray = days_of_month ? days_of_month.split(',').map(Number) : null
+        const monthsOfYearArray = months_of_year ? months_of_year.split(',') : null
 
-        if (days_of_month) {
-            const daysOfMonthArray = days_of_month.split(',').map(Number)
-            eachDayOfInterval({ start: currentRangeStart, end: currentRangeEnd }).forEach(date => {
-                if (
-                    daysOfMonthArray.includes(date.getDate()) &&
-                    isWithinInterval(date, {
-                        start: scheduleStartDate,
-                        end: scheduleEndDate || currentRangeEnd
-                    })
-                ) {
-                    processed.push(createEvent(schedule, date))
-                }
-            })
-        }
+        eachDayOfInterval({ start: currentRangeStart, end: currentRangeEnd }).forEach(date => {
+            const matchesDayOfWeek =
+                !daysOfWeekArray || daysOfWeekArray.includes(format(date, 'EEEE'))
+            const matchesDayOfMonth = !daysOfMonthArray || daysOfMonthArray.includes(getDate(date))
+            const matchesMonthOfYear =
+                !monthsOfYearArray || monthsOfYearArray.includes(format(date, 'MMMM'))
 
-        if (months_of_year) {
-            const monthsOfYearArray = months_of_year.split(',')
-            eachDayOfInterval({ start: currentRangeStart, end: currentRangeEnd }).forEach(date => {
-                if (
-                    monthsOfYearArray.includes(format(date, 'MMMM')) &&
-                    isWithinInterval(date, {
-                        start: scheduleStartDate,
-                        end: scheduleEndDate || currentRangeEnd
-                    })
-                ) {
-                    processed.push(createEvent(schedule, date))
-                }
-            })
-        }
+            if (
+                matchesDayOfWeek &&
+                matchesDayOfMonth &&
+                matchesMonthOfYear &&
+                isWithinInterval(date, {
+                    start: scheduleStartDate,
+                    end: scheduleEndDate || currentRangeEnd
+                })
+            ) {
+                processed.push(createEvent(schedule, date))
+            }
+        })
     }
 
     const createEvent = (schedule, date) => {

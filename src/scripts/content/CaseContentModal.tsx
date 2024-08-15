@@ -12,11 +12,12 @@ const CaseContentModal = ({ caseData, onClose, onInsert }) => {
     const [currentAdviceSection, setCurrentAdviceSection] = useState('')
 
     useEffect(() => {
-        const variableRegex = /{{Variable:([\w]+)}}/g
+        const variableRegex = /{{Variable:([\w]+)(?:::([^}]+))?}}/g
         let match
         const newVariables = {}
         while ((match = variableRegex.exec(content)) !== null) {
-            newVariables[match[1]] = ''
+            const [, name, defaultValue] = match
+            newVariables[name] = defaultValue || ''
         }
         setVariables(newVariables)
     }, [content])
@@ -38,10 +39,14 @@ const CaseContentModal = ({ caseData, onClose, onInsert }) => {
     const generateFinalContent = () => {
         let finalContent = content
 
-        Object.entries(variables).forEach(([name, value]) => {
-            const regex = new RegExp(`{{Variable:${name}}}`, 'g')
-            finalContent = finalContent.replace(regex, value || `[${name}]`)
-        })
+        finalContent = finalContent.replace(/<p><\/p>/g, '<br />')
+
+        finalContent = finalContent.replace(
+            /{{Variable:([\w]+)(?:::([^}]+))?}}/g,
+            (match, name, defaultValue) => {
+                return variables[name] || defaultValue || `[${name}]`
+            }
+        )
 
         finalContent = finalContent.replace(/{{AdviceSection}}/g, () => {
             const advice = selectedAdvice[currentAdviceSection]
@@ -62,7 +67,7 @@ const CaseContentModal = ({ caseData, onClose, onInsert }) => {
             }
 
             const response = await caseResponseApi.add(caseResponseData)
-            
+
             if (response.data) {
                 toast.success('Case response saved successfully')
                 onInsert(finalContent)
@@ -80,21 +85,26 @@ const CaseContentModal = ({ caseData, onClose, onInsert }) => {
     }
 
     const renderContent = () => {
-        const parts = content.split(/(\{\{Variable:[\w]+\}\}|\{\{AdviceSection\}\})/g)
+        const parts = content.split(/({{Variable:[\w]+(?:::[^}]+)?}}|{{AdviceSection}})/g)
         return parts.map((part, index) => {
             if (part.startsWith('{{Variable:')) {
-                const varName = part.match(/{{Variable:([\w]+)}}/)[1]
-                return (
-                    <span key={index} className="inline-flex items-center">
-                        <input
-                            type="text"
-                            value={variables[varName] || ''}
-                            onChange={e => handleVariableChange(varName, e.target.value)}
-                            className="inline-block px-2 py-1 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                            placeholder={varName}
-                        />
-                    </span>
-                )
+                const match = part.match(/{{Variable:([\w]+)(?:::([^}]+))?}}/)
+                const [, varName, defaultValue] = match
+                if (defaultValue) {
+                    return <span key={index}>{defaultValue}</span>
+                } else {
+                    return (
+                        <span key={index} className="inline-flex items-center">
+                            <input
+                                type="text"
+                                value={variables[varName] || ''}
+                                onChange={e => handleVariableChange(varName, e.target.value)}
+                                className="inline-block px-2 py-1 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                placeholder={varName}
+                            />
+                        </span>
+                    )
+                }
             } else if (part === '{{AdviceSection}}') {
                 const advice = selectedAdvice[index]
                 return (

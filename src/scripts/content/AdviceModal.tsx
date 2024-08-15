@@ -13,14 +13,14 @@ const AdviceModal = ({ caseId, onSelect, onClose, selectedAdvice }) => {
             try {
                 const response = await adviceApi.getList(caseId)
                 setAdviceOptions(response.data.advices)
-                
+
                 // Initialize variables for each advice
                 const initialVariables = {}
                 response.data.advices.forEach(advice => {
                     initialVariables[advice.id] = extractVariables(advice.content)
                 })
                 setAdviceVariables(initialVariables)
-                
+
                 setLoading(false)
             } catch (error) {
                 console.error('Failed to fetch advice:', error)
@@ -30,12 +30,13 @@ const AdviceModal = ({ caseId, onSelect, onClose, selectedAdvice }) => {
         fetchAdvice()
     }, [caseId])
 
-    const extractVariables = (content) => {
-        const variableRegex = /{{Variable:([\w]+)}}/g
+    const extractVariables = content => {
+        const variableRegex = /{{Variable:([\w]+)(?:::([^}]+))?}}/g
         const variables = {}
         let match
         while ((match = variableRegex.exec(content)) !== null) {
-            variables[match[1]] = ''
+            const [, name, defaultValue] = match
+            variables[name] = defaultValue || ''
         }
         return variables
     }
@@ -61,32 +62,42 @@ const AdviceModal = ({ caseId, onSelect, onClose, selectedAdvice }) => {
             .filter(advice => selected.includes(advice.id))
             .map(advice => {
                 let content = advice.content
-                Object.entries(adviceVariables[advice.id]).forEach(([varName, value]) => {
-                    const regex = new RegExp(`{{Variable:${varName}}}`, 'g')
-                    content = content.replace(regex, value || `[${varName}]`)
-                })
+                content = content.replace(
+                    /{{Variable:([\w]+)(?:::([^}]+))?}}/g,
+                    (match, name, defaultValue) => {
+                        const value = adviceVariables[advice.id][name]
+                        return value || defaultValue || `[${name}]`
+                    }
+                )
                 return content
             })
             .join('\n\n')
         onSelect(selectedAdviceContent)
     }
 
-    const renderAdviceContent = (advice) => {
-        const parts = advice.content.split(/(\{\{Variable:[\w]+\}\})/g)
+    const renderAdviceContent = advice => {
+        const parts = advice.content.split(/({{Variable:[\w]+(?:::(?:[^}]+))?}})/g)
         return parts.map((part, index) => {
             if (part.startsWith('{{Variable:')) {
-                const varName = part.match(/{{Variable:([\w]+)}}/)[1]
-                return (
-                    <span key={index} className="inline-flex items-center">
-                        <input
-                            type="text"
-                            value={adviceVariables[advice.id][varName] || ''}
-                            onChange={(e) => handleVariableChange(advice.id, varName, e.target.value)}
-                            className="inline-block px-2 py-1 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                            placeholder={varName}
-                        />
-                    </span>
-                )
+                const match = part.match(/{{Variable:([\w]+)(?:::([^}]+))?}}/)
+                const [, varName, defaultValue] = match
+                if (defaultValue) {
+                    return <span key={index}>{defaultValue}</span>
+                } else {
+                    return (
+                        <span key={index} className="inline-flex items-center">
+                            <input
+                                type="text"
+                                value={adviceVariables[advice.id][varName] || ''}
+                                onChange={e =>
+                                    handleVariableChange(advice.id, varName, e.target.value)
+                                }
+                                className="inline-block px-2 py-1 border border-blue-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                                placeholder={varName}
+                            />
+                        </span>
+                    )
+                }
             } else {
                 return <span key={index} dangerouslySetInnerHTML={{ __html: part }} />
             }
@@ -98,7 +109,10 @@ const AdviceModal = ({ caseId, onSelect, onClose, selectedAdvice }) => {
             <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl">
                 <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                     <h3 className="text-xl font-bold text-gray-800">Select advice</h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
+                    <button
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
                         <X size={24} />
                     </button>
                 </div>

@@ -170,7 +170,8 @@ const SearchModal: React.FC<SearchModalProps> = ({ setShowModal }) => {
         composeBox.innerHTML = '';
       }
 
-      composeBox.innerHTML += htmlContent;
+      composeBox.innerHTML = htmlContent + composeBox.innerHTML;
+      composeBox.focus();
 
       composeBox.dispatchEvent(new Event('input', { bubbles: true }));
 
