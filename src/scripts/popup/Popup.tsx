@@ -297,7 +297,7 @@ const Popup = () => {
                         />
                     </div>
                 </div>
-                {userSchedule.length == 0 ? (
+                {userSchedule?.length == 0 ? (
                     <div className="flex flex-col items-center justify-center text-center py-8 text-gray-500">
                         <AlertCircle size={48} className="mx-auto mb-4" />
                         <p className="text-lg">You have no schedule!</p>

@@ -184,7 +184,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ setShowModal }) => {
     ? searchResults
     : showDefaultCases
     ? defaultCases
-    : recentSearches.length > 0
+    : recentSearches?.length > 0
     ? recentSearches
     : defaultCases;
 
@@ -247,7 +247,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ setShowModal }) => {
                 <Search size={20} className="mr-2" />
                 Search Results
               </>
-            ) : !showDefaultCases && recentSearches.length > 0 ? (
+            ) : !showDefaultCases && recentSearches?.length > 0 ? (
               <>
                 <Clock size={20} className="mr-2" />
                 Recent Searches
@@ -264,7 +264,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ setShowModal }) => {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
               <p className="mt-2 text-gray-600">Searching...</p>
             </div>
-          ) : displayedItems.length > 0 ? (
+          ) : displayedItems?.length > 0 ? (
             displayedItems.map((item, index) => (
               <div
                 key={index}
@@ -280,7 +280,7 @@ const SearchModal: React.FC<SearchModalProps> = ({ setShowModal }) => {
                     __html: item.case ? item.case.content : item.content,
                   }}
                 ></div>
-                {!searchQuery && !showDefaultCases && recentSearches.length > 0 && (
+                {!searchQuery && !showDefaultCases && recentSearches?.length > 0 && (
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
